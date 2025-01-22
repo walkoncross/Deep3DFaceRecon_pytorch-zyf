@@ -94,7 +94,7 @@ conda env create -f environment.yml
 source activate deep3d_pytorch
 ```
 
-2. Install Nvdiffrast library:
+2. Install Nvdiffrast library (Only needed for training and testing with rendering/visualization):
 ```
 git clone -b 0.3.0 https://github.com/NVlabs/nvdiffrast
 cd nvdiffrast    # ./Deep3DFaceRecon_pytorch/nvdiffrast
@@ -137,6 +137,24 @@ Deep3DFaceRecon_pytorch
 ```
 
 ### Test with custom images
+
+#### Face detection
+To detect 5 facial landmarks from test images, first we need install [InsightFace](https://github.com/deepinsight/insightface) library:
+```
+pip install insightface onnxruntime
+```
+or 
+```
+pip install insightface onnxruntime-gpu
+```
+
+and then, run the following command:
+```
+python detect_faces_by_insightface.py <folder_to_test_images>
+```
+
+#### Face reconstruction
+
 To reconstruct 3d faces from test images, organize the test image folder as follows:
 ```
 Deep3DFaceRecon_pytorch
@@ -159,6 +177,27 @@ python test.py --name=<model_name> --epoch=20 --img_folder=<folder_to_test_image
 # get reconstruction results of example images
 python test.py --name=<model_name> --epoch=20 --img_folder=./datasets/examples
 ```
+
+On **MacOS**, you can run the test script with CPU or Apple Silicon (M1, M2, M3 chips) by adding "--device cpu" or "--device mps" to the command. For example,
+
+run with MPS:
+```
+# get reconstruction results of your custom images
+python test.py --name=<model_name> --epoch=20 --img_folder=<folder_to_test_images> --renderer_type none --device cpu --no_viz
+
+# get reconstruction results of example images
+python test.py --name=<model_name> --epoch=20 --img_folder=./datasets/examples --renderer_type none --device cpu --no_viz
+```
+
+or run with CPU:
+```
+# get reconstruction results of your custom images
+python test.py --name=<model_name> --epoch=20 --img_folder=<folder_to_test_images> --renderer_type none --device mps --no_viz
+
+# get reconstruction results of example images
+python test.py --name=<model_name> --epoch=20 --img_folder=./datasets/examples --renderer_type none --device mps --no_viz
+```
+
 **_Following [#108](https://github.com/sicxu/Deep3DFaceRecon_pytorch/issues/108), if you don't have OpenGL environment, you can simply add "--use_opengl False" to use CUDA context. Make sure you have updated the nvdiffrast to the latest version._**
 
 Results will be saved into ./checkpoints/<model_name>/results/<folder_to_test_images>, which contain the following files:
