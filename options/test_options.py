@@ -15,6 +15,7 @@ class TestOptions(BaseOptions):
         parser.add_argument('--phase', type=str, default='test', help='train, val, test, etc')
         parser.add_argument('--dataset_mode', type=str, default=None, help='chooses how datasets are loaded. [None | flist]')
         parser.add_argument('--img_folder', type=str, default='examples', help='folder for test images.')
+        parser.add_argument('--no_visualize', '--no_vis', '--no_viz', action='store_true', help='do not render/visualize the results.')
 
         # Dropout and Batchnorm has different behavior during training and test.
         self.isTrain = False
