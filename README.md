@@ -94,16 +94,31 @@ conda env create -f environment.yml
 source activate deep3d_pytorch
 ```
 
-2. Install Nvdiffrast library (Only needed for training and testing with rendering/visualization):
-```
-git clone -b 0.3.0 https://github.com/NVlabs/nvdiffrast
-cd nvdiffrast    # ./Deep3DFaceRecon_pytorch/nvdiffrast
-pip install .
-```
+2. Install mesh renderer:
+   1.  Nvdiffrast library (necessary for training, optional for testing):
+    ```
+    git clone -b 0.3.0 https://github.com/NVlabs/nvdiffrast
+    cd nvdiffrast    # ./Deep3DFaceRecon_pytorch/nvdiffrast
+    pip install .
+    cd ..    # ./Deep3DFaceRecon_pytorch
+    ```
+   2.  Use a cpu renderer from 3DDFA-V3 instead for testing (which can work on MacOS):
+    ```
+    git clone --depth=1 https://github.com/wang-zidu/3DDFA-V3
+    cp 3DDFA-V3/utils/cpu_renderer.py ./utils/
+    cp -r 3DDFA-V3/utils/cython_renderer ./utils/
+
+    pip install Cython
+
+    cd util/cython_renderer/
+    python setup.py build_ext -i
+    cd ../..     # ./Deep3DFaceRecon_pytorch
+    ```
+    3. Skip this step for inference/test, but you need run test.py with "--renderer_type none --no_viz" options
+
 
 3. Install Arcface Pytorch:
 ```
-cd ..    # ./Deep3DFaceRecon_pytorch
 git clone https://github.com/deepinsight/insightface.git
 cp -r ./insightface/recognition/arcface_torch ./models/
 ```
@@ -183,19 +198,29 @@ On **MacOS**, you can run the test script with CPU or Apple Silicon (M1, M2, M3 
 run with MPS:
 ```
 # get reconstruction results of your custom images
-python test.py --name=<model_name> --epoch=20 --img_folder=<folder_to_test_images> --renderer_type none --device cpu --no_viz
+python test.py --name=<model_name> --epoch=20 --img_folder=<folder_to_test_images> --device mps --renderer_type face3d
+
+# no visualization
+python test.py --name=<model_name> --epoch=20 --img_folder=<folder_to_test_images> --device mps --renderer_type none--no_viz
 
 # get reconstruction results of example images
-python test.py --name=<model_name> --epoch=20 --img_folder=./datasets/examples --renderer_type none --device cpu --no_viz
+python test.py --name=<model_name> --epoch=20 --img_folder=./datasets/examples --device mps --renderer_type face3d
+
+# no visualization
+python test.py --name=<model_name> --epoch=20 --img_folder=./datasets/examples --device mps --renderer_type none --no_viz
 ```
 
 or run with CPU:
 ```
 # get reconstruction results of your custom images
-python test.py --name=<model_name> --epoch=20 --img_folder=<folder_to_test_images> --renderer_type none --device mps --no_viz
+python test.py --name=<model_name> --epoch=20 --img_folder=<folder_to_test_images> --device cpu --renderer_type face3d
+
+python test.py --name=<model_name> --epoch=20 --img_folder=<folder_to_test_images> --device cpu --renderer_type none --no_viz
 
 # get reconstruction results of example images
-python test.py --name=<model_name> --epoch=20 --img_folder=./datasets/examples --renderer_type none --device mps --no_viz
+python test.py --name=<model_name> --epoch=20 --img_folder=./datasets/examples --device cpu --renderer_type face3d
+
+python test.py --name=<model_name> --epoch=20 --img_folder=./datasets/examples --device cpu --renderer_type none --no_viz
 ```
 
 **_Following [#108](https://github.com/sicxu/Deep3DFaceRecon_pytorch/issues/108), if you don't have OpenGL environment, you can simply add "--use_opengl False" to use CUDA context. Make sure you have updated the nvdiffrast to the latest version._**

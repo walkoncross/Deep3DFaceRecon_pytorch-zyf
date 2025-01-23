@@ -43,7 +43,7 @@ class BaseOptions():
         parser.add_argument('--model', type=str, default='facerecon', help='chooses which model to use.')
 
         # renderer parameters
-        parser.add_argument('--renderer_type', type=str, default='nvdiffrast', help='chooses which renderer to use. [nvdiffrast | none]')
+        parser.add_argument('--renderer_type', type=str, default='nvdiffrast', help='chooses which renderer to use. [nvdiffrast | face3d | cpu | none], cpu=face3d')
 
         # additional parameters
         parser.add_argument('--epoch', type=str, default='latest', help='which epoch to load? set to latest to use latest cached model')

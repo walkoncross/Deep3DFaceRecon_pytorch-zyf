@@ -88,7 +88,7 @@ class FaceReconModel(BaseModel):
 
         self.parallel_names = self.model_names
 
-        if opt.renderer_type != 'none':
+        if opt.renderer_type == "nvdiffrast":
             self.parallel_names.append('renderer')
 
         self.net_recon = networks.define_net_recon(
@@ -107,11 +107,20 @@ class FaceReconModel(BaseModel):
             self.renderer = MeshRenderer(
                 rasterize_fov=fov, znear=opt.z_near, zfar=opt.z_far, rasterize_size=int(2 * opt.center), use_opengl=opt.use_opengl
             )
+        elif opt.renderer_type == "face3d" or opt.renderer_type == "cpu":
+            from util.cpu_renderer import MeshRenderer_cpu as MeshRenderer
+
+            fov = 2 * np.arctan(opt.center / opt.focal) * 180 / np.pi
+            self.renderer = MeshRenderer(
+                rasterize_fov=fov, znear=opt.z_near, zfar=opt.z_far, rasterize_size=int(2 * opt.center)
+            )
         else:
             self.renderer = None
 
+        self.output_vis = None
+
         if self.isTrain:
-            assert self.renderer is not None, f"{self.cls.__name__} should be initialized with opt.renderer_type='nvdiffrast'"
+            assert self.renderer_type == "nvdiffrast", f"{self.cls.__name__} should be initialized with opt.renderer_type='nvdiffrast'"
 
             self.loss_names = ['all', 'feat', 'color', 'lm', 'reg', 'gamma', 'reflc']
 
@@ -159,7 +168,7 @@ class FaceReconModel(BaseModel):
 
         if do_render:
             self.pred_mask, _, self.pred_face = self.renderer(
-                self.pred_vertex, self.facemodel.face_buf, feat=self.pred_color)
+                self.pred_vertex, self.facemodel.face_buf, feat=self.pred_color)[:3]
         
         self.pred_coeffs_dict = self.facemodel.split_coeff(output_coeff)
 
