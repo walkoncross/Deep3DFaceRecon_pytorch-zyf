@@ -103,7 +103,7 @@ def main(opt):
             "lms": lm_tensor,
         }
         model.set_input(data)  # unpack data from data loader
-        model.test(do_render=False)  # run inference
+        model.test(do_render=(not opt.no_visualize))  # run inference
 
         if not opt.no_visualize:
             visuals = model.get_current_visuals()  # get image results
