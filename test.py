@@ -69,7 +69,7 @@ def main(opt):
     model.parallelize()
     model.eval()
 
-    if not opt.no_visualize:
+    if opt.do_visualize:
         assert (
             model.renderer is not None
         ), "Visualization is only supported for models with a renderer"
@@ -103,9 +103,9 @@ def main(opt):
             "lms": lm_tensor,
         }
         model.set_input(data)  # unpack data from data loader
-        model.test(do_render=(not opt.no_visualize))  # run inference
+        model.test(do_render=opt.do_visualize)  # run inference
 
-        if not opt.no_visualize:
+        if opt.do_visualize:
             visuals = model.get_current_visuals()  # get image results
             visualizer.display_current_results(
                 visuals,
